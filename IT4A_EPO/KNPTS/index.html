@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamen Nuzky Papir Tapir Spock</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="manifest" href="manifest.json" />
+    <script src="index.js" defer></script>
+</head>
+<body>
+    <div>
+        <div id="wrap">
+            <h1>Kámen Nůžky Papír<br />Tapír Spock</h1>
+            <h2>Hráč</h2>
+            <div>
+                <table>
+                    <tr>
+                        <td><input type="radio" name="hrac" value="Kámen" checked /></td>
+                        <td>Kámen</td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="hrac" value="Nůžky" /></td>
+                        <td>Nůžky</td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="hrac" value="Papír" /></td>
+                        <td>Papír</td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="hrac" value="Tapír" /></td>
+                        <td>Tapír</td>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" name="hrac" value="Spock" /></td>
+                        <td>Spock</td>
+                    </tr>
+                </table>
+                <button onclick="hraj()" id="play_btn">Hraj</button>
+            </div>
+            <h2>Počítač</h2>
+            <div id="cpu_label"></div>
+            <h2>Výsledek</h2>
+            <div id="result_label"></div>
+        </div>
+        <div id="tabs">
+            <a href="./index.html" class="tab active">Hra</a> 
+            <a href="./score.html" class="tab">Skóre</a>
+        </div>
+    </div>
+</body>
+</html>
