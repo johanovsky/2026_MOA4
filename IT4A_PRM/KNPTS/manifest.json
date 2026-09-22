@@ -1,0 +1,19 @@
+{
+    "name": "PWA - Kamen Nuzky Papir Tapir Spock",
+    "short_name": "K/N/P/T/S",
+    "description": "Jednoducha PWA Kamen, Nuzky, Papir, Tapir, Spock s localStorage a indexedDB",
+    "start_url": "index.html",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "icon512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icon192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        }
+    ]
+}
