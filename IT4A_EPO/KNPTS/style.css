@@ -20,9 +20,11 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
+
+    justify-content: center;
 }
 
-#cpu_label, #result_label {
+#cpu_label, #result_label, #score_label {
     border: 1px solid black;
     border-radius: 10px;
     width: 90%;
@@ -37,6 +39,13 @@ td {
 #play_btn {
     width: 100px;
     height: 110px;
+    border-radius: 10px;
+    margin: 5px;
+}
+
+#reset_btn {
+    width: 90%;
+    padding: 10px;
     border-radius: 10px;
     margin: 5px;
 }
