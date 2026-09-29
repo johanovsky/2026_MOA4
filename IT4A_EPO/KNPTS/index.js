@@ -14,7 +14,7 @@ if("serviceWorker" in navigator) {
 let player_score = 0;
 let pocitac_score = 0;
 
-function hraj() {
+async function hraj() {
     //zjistime co si vybral hrac
     const hrac = document.querySelector("input[name='hrac']:checked").value;
     //kontrolni vypis
@@ -41,6 +41,8 @@ function hraj() {
                     pocitac_score++;
                     //ulozime do localStorage
                     localStorage.setItem("pocitac_score", pocitac_score);
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "PROHRA");
                     break;
                 case "Papír":
                 case "Spock":
@@ -49,9 +51,13 @@ function hraj() {
                     player_score++;
                     //ulozime do localStorage
                     localStorage.setItem("player_score", player_score);
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "VÝHRA");
                     break;
                 default:
                     document.getElementById("result_label").innerText = "REMÍZA";
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "REMÍZA");
                     break;
             }
             break;
@@ -64,6 +70,8 @@ function hraj() {
                     pocitac_score++;
                     //ulozime do localStorage
                     localStorage.setItem("pocitac_score", pocitac_score);
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "PROHRA");
                     break;
                 case "Kámen":
                 case "Spock":
@@ -72,9 +80,13 @@ function hraj() {
                     player_score++;
                     //ulozime do localStorage
                     localStorage.setItem("player_score", player_score);
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "VÝHRA");
                     break;
                 default:
                     document.getElementById("result_label").innerText = "REMÍZA";
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "REMÍZA");
                     break;
             }
             break;
@@ -87,6 +99,8 @@ function hraj() {
                     pocitac_score++;
                     //ulozime do localStorage
                     localStorage.setItem("pocitac_score", pocitac_score);
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "PROHRA");
                     break;
                 case "Nůžky":
                 case "Tapír":
@@ -95,9 +109,13 @@ function hraj() {
                     player_score++;
                     //ulozime do localStorage
                     localStorage.setItem("player_score", player_score);
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "VÝHRA");
                     break;
                 default:
                     document.getElementById("result_label").innerText = "REMÍZA";
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "REMÍZA");
                     break;
             }
             break;
@@ -110,6 +128,8 @@ function hraj() {
                     pocitac_score++;
                     //ulozime do localStorage
                     localStorage.setItem("pocitac_score", pocitac_score);
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "PROHRA");
                     break;
                 case "Nůžky":
                 case "Kámen":
@@ -118,9 +138,13 @@ function hraj() {
                     player_score++;
                     //ulozime do localStorage
                     localStorage.setItem("player_score", player_score);
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "VÝHRA");
                     break;
                 default:
                     document.getElementById("result_label").innerText = "REMÍZA";
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "REMÍZA");
                     break;
             }
             break;
@@ -133,6 +157,8 @@ function hraj() {
                     pocitac_score++;
                     //ulozime do localStorage
                     localStorage.setItem("pocitac_score", pocitac_score);
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "PROHRA");
                     break;
                 case "Papír":
                 case "Tapír":
@@ -141,9 +167,13 @@ function hraj() {
                     player_score++;
                     //ulozime do localStorage
                     localStorage.setItem("player_score", player_score);
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "VÝHRA");
                     break;
                 default:
                     document.getElementById("result_label").innerText = "REMÍZA";
+                    //zapiseme hru do DB
+                    await addGame(hrac, pocitac, "REMÍZA");
                     break;
             }
             break;
@@ -151,7 +181,7 @@ function hraj() {
 }
 
 //pri aktualizaci okna
-window.onload = function() {
+window.onload = async function() {
     //nacteni score z localStorage
     player_score = parseInt(localStorage.getItem("player_score"));
     pocitac_score = parseInt(localStorage.getItem("pocitac_score"));
@@ -163,5 +193,11 @@ window.onload = function() {
         //ulozime default do localStorage
         localStorage.setItem("player_score", player_score);
         localStorage.setItem("pocitac_score", pocitac_score);
+    }
+    //priprava Indexed DB
+    try {
+        await initDB();
+    } catch(error) {
+        console.log("Chyba pri inicializaci DB");
     }
 }

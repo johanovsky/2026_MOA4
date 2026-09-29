@@ -24,7 +24,7 @@ body {
     justify-content: center;
 }
 
-#cpu_label, #result_label, #score_label {
+#cpu_label, #result_label, #score_label, #history_label {
     border: 1px solid black;
     border-radius: 10px;
     width: 90%;
