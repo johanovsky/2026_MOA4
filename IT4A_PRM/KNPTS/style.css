@@ -31,6 +31,22 @@ body {
     margin-bottom: 10px;
 }
 
+#history_label {
+    border: 1px solid black;
+    border-radius: 10px;
+    width: 90%;
+    padding: 10px 0;
+
+    margin-bottom: 20px;
+    text-align: left;
+
+}
+
+#history_label ul {
+    list-style: none;
+    text-indent: -15%;
+}
+
 td {
     text-align: left;
 }
