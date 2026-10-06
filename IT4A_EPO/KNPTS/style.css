@@ -24,12 +24,28 @@ body {
     justify-content: center;
 }
 
-#cpu_label, #result_label, #score_label, #history_label {
+#cpu_label, #result_label, #score_label {
     border: 1px solid black;
     border-radius: 10px;
     width: 90%;
     height: 35px;
     margin-bottom: 10px;
+}
+
+#history_label {
+    border: 1px solid black;
+    border-radius: 10px;
+    width: 90%;
+    padding: 10px 0;
+    margin-bottom: 10px;
+
+    display: flex;
+    text-align: left;
+}
+
+#history_label ul {
+    list-style: none;
+    text-indent: -15%;
 }
 
 td {
