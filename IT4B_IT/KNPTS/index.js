@@ -14,7 +14,7 @@ if("serviceWorker" in navigator) {
 let hrac_score = 0;
 let pocitac_score = 0;
 
-function hraj() {
+async function hraj() {
     //stazeni volby hrace
     const hrac = document.querySelector("input[name='hrac']:checked").value;
     //kontrolni vypis
@@ -43,6 +43,8 @@ function hraj() {
                     pocitac_score++;
                     //ulozime score do localStorage
                     localStorage.setItem("pocitac_score", pocitac_score);
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "PROHRA");
                     break;
                 case "Papír":
                 case "Spock":
@@ -52,10 +54,14 @@ function hraj() {
                     hrac_score++;
                     //ulozime score do localStorage
                     localStorage.setItem("hrac_score", hrac_score);
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "VÝHRA");
                     break;
                 default:
                     //REMIZA
                     document.getElementById("result_label").innerText = "REMÍZA";
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "REMÍZA");
                     break;
             }
             break;
@@ -69,6 +75,8 @@ function hraj() {
                     pocitac_score++;
                     //ulozime score do localStorage
                     localStorage.setItem("pocitac_score", pocitac_score);
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "PROHRA");
                     break;
                 case "Kámen":
                 case "Spock":
@@ -78,10 +86,14 @@ function hraj() {
                     hrac_score++;
                     //ulozime score do localStorage
                     localStorage.setItem("hrac_score", hrac_score);
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "VÝHRA");
                     break;
                 default:
                     //REMIZA
                     document.getElementById("result_label").innerText = "REMÍZA";
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "REMÍZA");
                     break;
             }
             break;
@@ -95,6 +107,8 @@ function hraj() {
                     pocitac_score++;
                     //ulozime score do localStorage
                     localStorage.setItem("pocitac_score", pocitac_score);
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "PROHRA");
                     break;
                 case "Nůžky":
                 case "Tapír":
@@ -104,10 +118,14 @@ function hraj() {
                     hrac_score++;
                     //ulozime score do localStorage
                     localStorage.setItem("hrac_score", hrac_score);
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "VÝHRA");
                     break;
                 default:
                     //REMIZA
                     document.getElementById("result_label").innerText = "REMÍZA";
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "REMÍZA");
                     break;
             }
             break;
@@ -121,6 +139,8 @@ function hraj() {
                     pocitac_score++;
                     //ulozime score do localStorage
                     localStorage.setItem("pocitac_score", pocitac_score);
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "PROHRA");
                     break;
                 case "Kámen":
                 case "Nůžky":
@@ -130,10 +150,14 @@ function hraj() {
                     hrac_score++;
                     //ulozime score do localStorage
                     localStorage.setItem("hrac_score", hrac_score);
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "VÝHRA");
                     break;
                 default:
                     //REMIZA
                     document.getElementById("result_label").innerText = "REMÍZA";
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "REMÍZA");
                     break;
             }
             break;
@@ -147,6 +171,8 @@ function hraj() {
                     pocitac_score++;
                     //ulozime score do localStorage
                     localStorage.setItem("pocitac_score", pocitac_score);
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "PROHRA");
                     break;
                 case "Papír":
                 case "Tapír":
@@ -156,10 +182,14 @@ function hraj() {
                     hrac_score++;
                     //ulozime score do localStorage
                     localStorage.setItem("hrac_score", hrac_score);
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "VÝHRA");
                     break;
                 default:
                     //REMIZA
                     document.getElementById("result_label").innerText = "REMÍZA";
+                    //ulozime prohru do DB
+                    await addGame(hrac, pocitac, "REMÍZA");
                     break;
             }
             break;
@@ -167,7 +197,7 @@ function hraj() {
 }
 
 //funkce pri nacteni stranky
-window.onload = function() {
+window.onload = async function() {
     //nacteme do promennych score z localStorage
     hrac_score = parseInt(localStorage.getItem("hrac_score"));
     pocitac_score = parseInt(localStorage.getItem("pocitac_score"));
@@ -182,5 +212,10 @@ window.onload = function() {
         localStorage.setItem("pocitac_score", pocitac_score);
         console.log("Default score 0:0");
     }
-
+    //priprava DB
+    try {
+        await initDB();
+    } catch(error) {
+        console.log("Chyba pri inicializaci DB: ", error);
+    }
 }
