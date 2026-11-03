@@ -1,221 +1,103 @@
-if("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-        navigator.serviceWorker.register("sw.js")
-        .then(registration => {
-            console.log("SW registred with scope: ", registration.scope);
-        })
-        .catch(error => {
-            console.log("SW registration failed: ", error);
+        navigator.serviceWorker.register(new URL("sw.js", document.baseURI).href).catch(error => {
+            console.error("Registrace service workeru selhala:", error);
         });
     });
 }
 
-//promenne pro pocitani score
+// Proměnné pro počítání skóre.
 let hrac_score = 0;
 let pocitac_score = 0;
+let gameInProgress = false;
+
+function loadScore(key) {
+    try {
+        const raw = localStorage.getItem(key);
+        if (raw === null || raw.trim() === "") return 0;
+        const value = Number(raw);
+        return Number.isSafeInteger(value) && value >= 0 ? value : 0;
+    } catch (error) {
+        console.error("Úložiště skóre není dostupné:", error);
+        return 0;
+    }
+}
+
+function saveScores() {
+    try {
+        localStorage.setItem("hrac_score", String(hrac_score));
+        localStorage.setItem("pocitac_score", String(pocitac_score));
+        return true;
+    } catch (error) {
+        console.error("Skóre se nepodařilo uložit:", error);
+        return false;
+    }
+}
 
 async function hraj() {
-    //stazeni volby hrace
-    const hrac = document.querySelector("input[name='hrac']:checked").value;
-    //kontrolni vypis
-    console.log("Hrac zvolil: " + hrac);
+    // Zabráníme spuštění další hry, dokud se aktuální hra neuloží.
+    const button = document.getElementById("play_btn");
+    if (gameInProgress || !button || button.disabled) return;
 
-    //pocitac vybira nahodne
-    //pole moznych voleb
-    const volby = ["Kámen", "Nůžky", "Papír", "Tapír", "Spock"];
-    //vyberu nah. index v poli
-    const index = Math.floor(Math.random() * volby.length);
-    const pocitac = volby[index];
-    //kontrolni vypis
-    console.log("Pocitac zvolil: " + pocitac);
-    //vypiseme volbu pocitace do jeho divu
-    document.getElementById("cpu_label").innerText = pocitac;
+    const selected = document.querySelector("input[name='hrac']:checked");
+    if (!selected) return;
 
-    //vyhodnoceni hry
-    switch(pocitac) {
-        case "Kámen":
-            switch(hrac) {
-                case "Nůžky":
-                case "Tapír":
-                    //PROHRA
-                    document.getElementById("result_label").innerText = "PROHRA";
-                    //zvyseni score pocitaci
-                    pocitac_score++;
-                    //ulozime score do localStorage
-                    localStorage.setItem("pocitac_score", pocitac_score);
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "PROHRA");
-                    break;
-                case "Papír":
-                case "Spock":
-                    //VYHRA
-                    document.getElementById("result_label").innerText = "VÝHRA";
-                    //zvyseni score
-                    hrac_score++;
-                    //ulozime score do localStorage
-                    localStorage.setItem("hrac_score", hrac_score);
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "VÝHRA");
-                    break;
-                default:
-                    //REMIZA
-                    document.getElementById("result_label").innerText = "REMÍZA";
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "REMÍZA");
-                    break;
-            }
-            break;
-        case "Nůžky":
-            switch(hrac) {
-                case "Papír":
-                case "Tapír":
-                    //PROHRA
-                    document.getElementById("result_label").innerText = "PROHRA";
-                    //zvyseni score pocitaci
-                    pocitac_score++;
-                    //ulozime score do localStorage
-                    localStorage.setItem("pocitac_score", pocitac_score);
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "PROHRA");
-                    break;
-                case "Kámen":
-                case "Spock":
-                    //VYHRA
-                    document.getElementById("result_label").innerText = "VÝHRA";
-                    //zvyseni score
-                    hrac_score++;
-                    //ulozime score do localStorage
-                    localStorage.setItem("hrac_score", hrac_score);
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "VÝHRA");
-                    break;
-                default:
-                    //REMIZA
-                    document.getElementById("result_label").innerText = "REMÍZA";
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "REMÍZA");
-                    break;
-            }
-            break;
-        case "Papír":
-            switch(hrac) {
-                case "Kámen":
-                case "Spock":
-                    //PROHRA
-                    document.getElementById("result_label").innerText = "PROHRA";
-                    //zvyseni score pocitaci
-                    pocitac_score++;
-                    //ulozime score do localStorage
-                    localStorage.setItem("pocitac_score", pocitac_score);
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "PROHRA");
-                    break;
-                case "Nůžky":
-                case "Tapír":
-                    //VYHRA
-                    document.getElementById("result_label").innerText = "VÝHRA";
-                    //zvyseni score
-                    hrac_score++;
-                    //ulozime score do localStorage
-                    localStorage.setItem("hrac_score", hrac_score);
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "VÝHRA");
-                    break;
-                default:
-                    //REMIZA
-                    document.getElementById("result_label").innerText = "REMÍZA";
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "REMÍZA");
-                    break;
-            }
-            break;
-        case "Tapír":
-            switch(hrac) {
-                case "Papír":
-                case "Spock":
-                    //PROHRA
-                    document.getElementById("result_label").innerText = "PROHRA";
-                    //zvyseni score pocitaci
-                    pocitac_score++;
-                    //ulozime score do localStorage
-                    localStorage.setItem("pocitac_score", pocitac_score);
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "PROHRA");
-                    break;
-                case "Kámen":
-                case "Nůžky":
-                    //VYHRA
-                    document.getElementById("result_label").innerText = "VÝHRA";
-                    //zvyseni score
-                    hrac_score++;
-                    //ulozime score do localStorage
-                    localStorage.setItem("hrac_score", hrac_score);
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "VÝHRA");
-                    break;
-                default:
-                    //REMIZA
-                    document.getElementById("result_label").innerText = "REMÍZA";
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "REMÍZA");
-                    break;
-            }
-            break;
-        case "Spock":
-            switch(hrac) {
-                case "Kámen":
-                case "Nůžky":
-                    //PROHRA
-                    document.getElementById("result_label").innerText = "PROHRA";
-                    //zvyseni score pocitaci
-                    pocitac_score++;
-                    //ulozime score do localStorage
-                    localStorage.setItem("pocitac_score", pocitac_score);
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "PROHRA");
-                    break;
-                case "Papír":
-                case "Tapír":
-                    //VYHRA
-                    document.getElementById("result_label").innerText = "VÝHRA";
-                    //zvyseni score
-                    hrac_score++;
-                    //ulozime score do localStorage
-                    localStorage.setItem("hrac_score", hrac_score);
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "VÝHRA");
-                    break;
-                default:
-                    //REMIZA
-                    document.getElementById("result_label").innerText = "REMÍZA";
-                    //ulozime prohru do DB
-                    await addGame(hrac, pocitac, "REMÍZA");
-                    break;
-            }
-            break;
-    }
-}
+    gameInProgress = true;
+    button.disabled = true;
 
-//funkce pri nacteni stranky
-window.onload = async function() {
-    //nacteme do promennych score z localStorage
-    hrac_score = parseInt(localStorage.getItem("hrac_score"));
-    pocitac_score = parseInt(localStorage.getItem("pocitac_score"));
-    //kontrolni vypis
-    console.log("Nactene score: " + hrac_score + " - " + pocitac_score);
-    //kontrola nacteni
-    if(isNaN(hrac_score) || isNaN(pocitac_score)) {
-        //alespon jedno skore nemam -> default 0:0
-        hrac_score = 0;
-        localStorage.setItem("hrac_score", hrac_score);
-        pocitac_score = 0;
-        localStorage.setItem("pocitac_score", pocitac_score);
-        console.log("Default score 0:0");
-    }
-    //priprava DB
     try {
         await initDB();
-    } catch(error) {
-        console.log("Chyba pri inicializaci DB: ", error);
+
+        // Načteme volbu hráče a počítač vybere náhodnou možnost.
+        const hrac = selected.value;
+        const volby = ["Kámen", "Nůžky", "Papír", "Tapír", "Spock"];
+        const pocitac = volby[Math.floor(Math.random() * volby.length)];
+        // Pravidla hry: každá volba poráží právě dvě jiné volby.
+        const beats = {
+            "Kámen": ["Nůžky", "Tapír"],
+            "Nůžky": ["Papír", "Tapír"],
+            "Papír": ["Kámen", "Spock"],
+            "Tapír": ["Papír", "Spock"],
+            "Spock": ["Kámen", "Nůžky"]
+        };
+
+        // Vyhodnocení hry.
+        const result = hrac === pocitac ? "REMÍZA" : beats[hrac].includes(pocitac) ? "VÝHRA" : "PROHRA";
+
+        // Výsledek nejprve uložíme do databáze, až poté upravíme skóre.
+        await addGame(hrac, pocitac, result);
+
+        // Aktualizujeme skóre a uložíme ho do localStorage.
+        if (result === "VÝHRA") hrac_score++;
+        if (result === "PROHRA") pocitac_score++;
+        saveScores();
+
+        // Zobrazíme volbu počítače a výsledek hry.
+        document.getElementById("cpu_label").textContent = pocitac;
+        document.getElementById("result_label").textContent = result;
+    } catch (error) {
+        console.error("Hru se nepodařilo dokončit:", error);
+        document.getElementById("result_label").textContent = "Hru se nepodařilo uložit. Zkuste to znovu.";
+    } finally {
+        gameInProgress = false;
+        button.disabled = false;
     }
 }
+
+// Po načtení stránky obnovíme skóre a inicializujeme databázi.
+window.addEventListener("DOMContentLoaded", async () => {
+    hrac_score = loadScore("hrac_score");
+    pocitac_score = loadScore("pocitac_score");
+    saveScores();
+
+    const button = document.getElementById("play_btn");
+    if (button) button.disabled = true;
+
+    try {
+        await initDB();
+        if (button) button.disabled = false;
+    } catch (error) {
+        console.error("Chyba při inicializaci databáze:", error);
+        document.getElementById("result_label").textContent = "Databáze není dostupná. Hru nelze bezpečně uložit.";
+    }
+});
