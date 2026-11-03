@@ -1,67 +1,80 @@
-//promenne pro nacteni score
+// Proměnné pro načtení skóre.
 let hrac_score = 0;
 let pocitac_score = 0;
+let resetInProgress = false;
 
-//funkce po nacteni stranky
-window.onload = async function() {
-    //nacteme score z localStorage
-    hrac_score = parseInt(localStorage.getItem("hrac_score"));
-    pocitac_score = parseInt(localStorage.getItem("pocitac_score"));
-    //kontrolni vypis
-    console.log("Nactene score: " + hrac_score + " : " + pocitac_score);
-    //kontrola nacteni
-    if(isNaN(hrac_score) || isNaN(pocitac_score)) {
-        //minimalne jedno score nemam -> default 0:0
-        hrac_score = 0;
-        localStorage.setItem("hrac_score", hrac_score);
-        pocitac_score = 0;
-        localStorage.setItem("pocitac_score", pocitac_score);
-        console.log("Neplatne score -> default 0:0");
-    }
-    //nactene score zobrazime
-    document.getElementById("score_label").innerText = hrac_score + " : " + pocitac_score;
-
-    //DB
+function loadScore(key) {
     try {
-        //inicializace
-        await initDB();
-
-        //nacteni vsech zaznamu z DB
-        const hry = await getAllGames();
-        //najdeme div pro vypis historie
-        const div = document.getElementById("history_label");
-        //kontrola poctu ulozenych her
-        if(hry.length === 0) {
-            //nemame zadne hry
-            div.innerText = "Nemate ulozene zadne hry";
-        } else {
-            //nejmene jedna hra je ulozena
-            //vytvorime HTML seznam s hrami
-            let seznam = "<ul>";
-            //naplnime seznamem her
-            for(let i = 0; i < hry.length; i++) {
-                seznam += "<li>" + hry[i].hrac + " : " + hry[i].pocitac + " - " 
-                + hry[i].result + "</li>\n";
-            }
-            //ukoncime seznam
-            seznam += "</ul>";
-            //seznam vlozime jako HTML do divu
-            div.innerHTML = seznam;
-        }
-    } catch(error) {
-        console.log("Chyba pri inicializaci DB: ", error);
+        const raw = localStorage.getItem(key);
+        if (raw === null || raw.trim() === "") return 0;
+        const value = Number(raw);
+        return Number.isSafeInteger(value) && value >= 0 ? value : 0;
+    } catch (error) {
+        console.error("Úložiště skóre není dostupné:", error);
+        return 0;
     }
 }
 
+// Vypíšeme historii her bezpečně pomocí DOM metod a textContent.
+function displayHistory(games, container) {
+    if (!games.length) {
+        container.textContent = "Nemáte uložené žádné hry.";
+        return;
+    }
+
+    const list = document.createElement("ul");
+    games.forEach(game => {
+        const item = document.createElement("li");
+        const date = Number.isFinite(game.timestamp)
+            ? new Date(game.timestamp).toLocaleString("cs-CZ")
+            : "";
+        item.textContent = `${game.hrac} : ${game.pocitac} - ${game.result}${date ? " (" + date + ")" : ""}`;
+        list.appendChild(item);
+    });
+    container.replaceChildren(list);
+}
+
+// Po načtení stránky načteme skóre a historii z databáze.
+window.addEventListener("DOMContentLoaded", async () => {
+    hrac_score = loadScore("hrac_score");
+    pocitac_score = loadScore("pocitac_score");
+    document.getElementById("score_label").textContent = `${hrac_score} : ${pocitac_score}`;
+
+    const history = document.getElementById("history_label");
+    const resetButton = document.getElementById("reset_btn");
+    if (resetButton) resetButton.disabled = true;
+
+    try {
+        await initDB();
+        const games = await getAllGames();
+        displayHistory(games, history);
+        if (resetButton) resetButton.disabled = false;
+    } catch (error) {
+        console.error("Historii se nepodařilo načíst:", error);
+        history.textContent = "Historii se nepodařilo načíst.";
+    }
+});
+
 async function reset() {
-    //hrac i pocitac -> score 0:0
-    hrac_score = 0;
-    pocitac_score = 0;
-    //ulozime do localStorage
-    localStorage.setItem("hrac_score", hrac_score);
-    localStorage.setItem("pocitac_score", pocitac_score);
-    //smazeme obsah DB
-    await deleteAllGames();
-    //refresh stranky
-    location.reload();
+    // Hráč i počítač začínají znovu se skóre 0:0; historii smažeme před obnovením stránky.
+    const button = document.getElementById("reset_btn");
+    if (resetInProgress || (button && button.disabled)) return;
+
+    resetInProgress = true;
+    if (button) button.disabled = true;
+
+    try {
+        await deleteAllGames();
+        hrac_score = 0;
+        pocitac_score = 0;
+        localStorage.setItem("hrac_score", "0");
+        localStorage.setItem("pocitac_score", "0");
+        location.reload();
+    } catch (error) {
+        console.error("Reset se nepodařil:", error);
+        const history = document.getElementById("history_label");
+        if (history) history.textContent = "Reset se nepodařil. Zkuste to znovu.";
+        resetInProgress = false;
+        if (button) button.disabled = false;
+    }
 }
