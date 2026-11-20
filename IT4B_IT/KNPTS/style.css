@@ -2,6 +2,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 20px;
 }
 
 #wrap {
@@ -13,14 +14,19 @@ body {
     flex-direction: column;
     align-items: center;
 
-    padding: 10px;
+    padding: 15px;
+    width: 100%;
+    max-width: 550px;
+    min-width: 320px;
+    box-sizing: border-box;
 }
 
-#wrap>div {
+#wrap > div {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    width: 100%;
 }
 
 #cpu_label, #result_label, #score_label {
@@ -36,13 +42,17 @@ body {
     border-radius: 10px;
     width: 90%;
     margin-bottom: 10px;
-    padding: 10px 0;
+    padding: 12px 15px;
     text-align: left;
+    box-sizing: border-box;
+    overflow-x: auto;
 }
 
 #history_label ul {
     list-style: none;
-    text-indent: -15%;
+    padding: 0;
+    margin: 0;
+    white-space: nowrap;
 }
 
 td {
@@ -65,6 +75,10 @@ td {
 
 #tabs {
     display: flex;
+    width: 100%;
+    max-width: 550px;
+    min-width: 320px;
+    box-sizing: border-box;
 }
 
 .tab {
